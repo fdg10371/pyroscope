@@ -1,7 +1,7 @@
-@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("/static/vendor/fonts/work-sans-latin-400-normal.woff2") format("woff2"); }
-@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("/static/vendor/fonts/work-sans-latin-500-normal.woff2") format("woff2"); }
-@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("/static/vendor/fonts/work-sans-latin-600-normal.woff2") format("woff2"); }
-@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 700; font-display: swap; src: url("/static/vendor/fonts/work-sans-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("./vendor/fonts/work-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("./vendor/fonts/work-sans-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("./vendor/fonts/work-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Work Sans"; font-style: normal; font-weight: 700; font-display: swap; src: url("./vendor/fonts/work-sans-latin-700-normal.woff2") format("woff2"); }
 :root { font-family: "Work Sans", Arial, sans-serif; color: #1c1c1c; background: #fff; --teal: #008787; }
 * { box-sizing: border-box; }
 body { margin: 0; }
