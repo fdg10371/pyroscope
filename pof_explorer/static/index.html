@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pyroscope | Probability of Fire</title>
+  <link rel="stylesheet" href="/static/vendor/leaflet.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/vendor/leaflet.js"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <header>
+    <div><span class="eyebrow">GLOBAL DAILY PROBABILITY OF FIRE</span><h1>Pyroscope</h1></div>
+    <a href="#about">About the forecast</a>
+  </header>
+  <main>
+    <aside aria-label="Forecast controls">
+      <span class="eyebrow">EXPLORE THE FORECAST</span>
+      <h2>A global view.<br>A daily perspective.</h2>
+      <p>Explore the likelihood of satellite-detected active fire, one forecast day at a time.</p>
+      <label for="run">Forecast issued (UTC)</label>
+      <select id="run" disabled><option>Loading forecast runs...</option></select>
+      <label for="step">Valid time (UTC)</label>
+      <output id="valid" for="step">Awaiting data</output>
+      <input id="step" type="range" min="0" max="0" value="0" disabled>
+      <div class="playback">
+        <button id="previous" aria-label="Previous forecast step" disabled>&larr;</button>
+        <button id="play" disabled>Play forecast</button>
+        <button id="next" aria-label="Next forecast step" disabled>&rarr;</button>
+      </div>
+      <label for="opacity">Layer opacity</label>
+      <input id="opacity" type="range" min="0" max="100" value="85">
+      <p class="hint">Click the map to inspect a grid cell. Pan and zoom to explore.</p>
+      <p id="status" role="status" aria-live="polite">Connecting to the data store...</p>
+      <button id="retry" hidden>Retry connection</button>
+      <section id="about">
+        <h3>What does PoF mean?</h3>
+        <p>Daily probability of at least one MODIS active-fire detection within an approximately 9 &times; 9 km grid cell, used as a proxy for fire occurrence.</p>
+        <p>Not a prediction of ignition, burned area, or fire intensity. Low probabilities do not mean no fire risk. Skill varies by region and lead time; the paper finds useful skill up to 10 days, with longer skill in some regions.</p>
+        <a href="https://doi.org/10.1029/2023GL107929" target="_blank" rel="noopener noreferrer">McNorton et al. (2024)</a>
+        <p>Research information, not an emergency warning service. Follow local authorities for safety advice.</p>
+      </section>
+    </aside>
+    <section class="map-area" aria-label="Probability of fire map">
+      <div id="map"></div>
+      <div class="map-caption"><span class="dot"></span> MODEL_FIRE <span id="map-date"></span></div>
+      <section class="legend" aria-label="Probability legend">
+        <h3>Daily probability of fire</h3>
+        <div class="swatches">
+          <span style="--color:#fff5da">0%</span><span style="--color:#fcd9b8">0.1%</span>
+          <span style="--color:#fab073">0.5%</span><span style="--color:#edb976">1%</span>
+          <span style="--color:#e27226">2%</span><span style="--color:#e48377">5%</span>
+          <span style="--color:#db6e63">10%</span><span style="--color:#c7403d">20%</span>
+          <span style="--color:#730943">100%</span>
+        </div>
+        <p>Colour anchors; interpolated between values. Transparent = no data.</p>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
