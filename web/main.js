@@ -2,6 +2,7 @@ import "../pof_explorer/static/vendor/leaflet.js";
 import "../pof_explorer/static/vendor/leaflet.css";
 import "../pof_explorer/static/style.css";
 import "./style.css";
+import { geoMercator, geoPath } from "d3-geo";
 import geography from "../pof_explorer/static/countries.geojson?url";
 import { DEFAULT_SOURCE, sourceURL } from "./data.js";
 
@@ -56,14 +57,47 @@ function resetWorker() {
 }
 const map = L.map("map", { maxZoom: 10, minZoom: 1 }).setView([15, 5], 2);
 map.createPane("basemap").style.zIndex = 150;
+let countries;
+const BaseMapLayer = L.GridLayer.extend({
+  createTile(coords, done) {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 256;
+    requestAnimationFrame(() => {
+      try {
+        const context = canvas.getContext("2d");
+        context.fillStyle = "#dddddd";
+        context.fillRect(0, 0, 256, 256);
+        if (countries) {
+          const worldSize = 256 * 2 ** coords.z;
+          const projection = geoMercator()
+            .scale(worldSize / (2 * Math.PI))
+            .translate([worldSize / 2 - coords.x * 256, worldSize / 2 - coords.y * 256])
+            .precision(.5);
+          const path = geoPath(projection, context);
+          context.beginPath();
+          path(countries);
+          context.fillStyle = "#f7f7f3";
+          context.fill();
+          context.strokeStyle = "#b3bfbc";
+          context.lineWidth = .7;
+          context.stroke();
+        }
+        done(null, canvas);
+      } catch (error) {
+        done(error, canvas);
+      }
+    });
+    return canvas;
+  },
+});
 async function loadBasemap() {
  try {
   const response = await fetch(geography);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  L.geoJSON(await response.json(), {
+  countries = await response.json();
+  new BaseMapLayer({
     pane: "basemap",
-    style: { color: "#b3bfbc", weight: .7, fillColor: "#f7f7f3", fillOpacity: 1 },
-    interactive: false,
+    bounds: [[-85.051129, -180], [85.051129, 180]],
     attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a> (public domain)',
   }).addTo(map);
  } catch (error) {
