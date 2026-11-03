@@ -1,0 +1,34 @@
+name: Check application container
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build container and run frontend tests
+        run: docker build --build-arg environment=dev --tag pyroscope:ci .
+      - name: Check HTTP serving
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --detach --name pyroscope-smoke -p 127.0.0.1:8080:80 pyroscope:ci
+          trap 'docker logs pyroscope-smoke; docker rm --force pyroscope-smoke' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8080/healthz; then
+              break
+            fi
+            sleep 1
+          done
+          CONTAINER_URL=http://127.0.0.1:8080 node --test tests/container.test.js

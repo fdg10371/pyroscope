@@ -1,0 +1,68 @@
+name: Build & push to Harbor
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment (dev, prod, etc)"
+        required: true
+        default: "dev"
+      image_tag:
+        description: "Image tag (optional, if blank it uses the commit SHA)"
+        default: "latest"
+      options_directory:
+        description: "Path to options directory, relative to repo root."
+        required: false
+        default: ".github/"
+        type: string
+
+jobs:
+  load_options:
+    name: Load build options
+    runs-on: ubuntu-latest
+    outputs:
+      image_project: ${{ steps.load.outputs.image_project }}
+      image_repository: ${{ steps.load.outputs.image_repository }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Load build options
+        id: load
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE_PROJECT=c3s-applications
+          IMAGE_REPOSITORY=${{ github.event.repository.name }}
+
+          OPTIONS_FILE_BASE="${{ github.event.inputs.options_directory }}/options.env"
+          OPTIONS_FILE_ENV="${{ github.event.inputs.options_directory }}/options-${{ github.event.inputs.environment }}.env"
+
+          for FILE in "$OPTIONS_FILE_BASE" "$OPTIONS_FILE_ENV"; do
+            if [[ -f "$FILE" ]]; then
+              # shellcheck disable=SC1090
+              source "$FILE"
+            else
+              echo "Options file not found: $FILE — using defaults." >&2
+            fi
+          done
+
+          echo "image_project=$IMAGE_PROJECT" >> "$GITHUB_OUTPUT"
+          echo "image_repository=$IMAGE_REPOSITORY" >> "$GITHUB_OUTPUT"
+
+  build_and_push:
+    name: Build and push image to Harbor
+    needs: load_options
+    uses: ecmwf/reusable-workflows/.github/workflows/build-and-push-image.yml@main
+    with:
+      ref: ${{ github.ref }}
+      registry: eccr.ecmwf.int
+      image_repository: ${{ needs.load_options.outputs.image_project }}/${{ needs.load_options.outputs.image_repository }}
+      image_tag: ${{ github.event.inputs.image_tag }}
+      build_args: |
+        environment=${{ github.event.inputs.environment }}
+    secrets:
+      registry_username: ${{ secrets.HARBOR_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_PASSWORD }}
+

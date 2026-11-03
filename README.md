@@ -1,9 +1,94 @@
 # Pyroscope
 
-A branded Probability of Fire map that can run entirely on **GitHub Pages**.
+A branded Probability of Fire map packaged for **DSS containers** and **GitHub Pages**.
 The browser reads Zarr v2 directly, decompresses Blosc/LZ4 chunks in a Web
 Worker, and draws probability tiles. No Python backend, cloud VM, copied archive,
 or scheduled forecast conversion is required.
+
+## DSS application template
+
+This application adopts the Vite/static pattern from the ECMWF DSS application
+template, reviewed through `fdg10371/pyroscope-template` at commit
+`e7b5211c6c08407244af71d460aa6b7c1ec765c0`. It retains the existing plain-JavaScript
+viewer, npm lockfile, Work Sans styling, scientific colour scale, direct-Zarr
+worker, and optional Python backend; the template does not require a React rewrite.
+
+The multi-stage `Dockerfile` installs locked dependencies with Node 22 (matching
+the application, rather than the template's Node 18 stub), runs frontend tests,
+and builds Vite. The final image contains only static assets and Nginx on port
+**80**, with `/healthz` for health checks. HTML is revalidated, hashed assets are
+cached immutably, and missing assets return 404. No forecast data or Python
+backend is baked into the image.
+
+### Build and run locally
+
+```sh
+docker build --platform linux/amd64 --build-arg environment=dev -t pyroscope:local .
+docker run --rm --name pyroscope-local -p 127.0.0.1:8080:80 pyroscope:local
+```
+
+Open http://127.0.0.1:8080. With the container running, check its HTTP serving:
+
+```sh
+CONTAINER_URL=http://127.0.0.1:8080 node --test tests/container.test.js
+```
+
+The `environment` argument accepts the template workflow's environment selection;
+dev and prod currently use the same public frontend configuration. The container
+builds for `/`, independently of the Pages base path. Like Pages, it requires a
+reachable HTTPS/CORS-enabled Zarr source; use the viewer's source field to select
+another public store. Kubernetes environment variables cannot change a compiled
+Vite bundle.
+
+### Build an image in Harbor
+
+1. Configure the repository's Actions secrets `HARBOR_USERNAME` and
+   `HARBOR_PASSWORD`. Never commit them or include them in frontend settings.
+2. Ensure the repository can call ECMWF's reusable
+   `build-and-push-image.yml` workflow and push to its Harbor project; organization
+   administrators may need to grant access.
+3. Run **Actions > Build & push to Harbor**, selecting `dev` or `prod` and an
+   image tag. Prefer a versioned tag for production; blank uses the commit SHA.
+
+`.github/options.env` sets `IMAGE_PROJECT=c3s-applications` and
+`IMAGE_REPOSITORY=pyroscope`; the dev/prod option files provide optional overrides.
+The template's reusable workflow builds and pushes
+`eccr.ecmwf.int/c3s-applications/pyroscope:<tag>`. The separate **Check application
+container** workflow checks pull requests and main pushes without registry secrets.
+The existing Pages workflow remains available.
+
+### DSS deployment
+
+Building an image **does not deploy it**. Follow the template's current Argo CD
+model: an administrator must register Pyroscope in
+`ecmwf/dss-applications-argocd-configs`, starting from `climate-pulse/values/`.
+Set `name: pyroscope`, `deployment.image` to
+`eccr.ecmwf.int/c3s-applications/pyroscope`, `deployment.port: 80`, and the selected
+`deployment.tag`; configure environment-specific hostnames, TLS, and dev basic
+authentication there. Configure health probes, when enabled, to request `/healthz`
+on port 80. Add the application to the appropriate dev/prod cluster list.
+
+No cluster registration or live deployment is performed by this repository.
+Legacy `deploy.yml` and local `deployment/values*.yaml` are deliberately omitted:
+the template identifies those as obsolete for new Argo CD applications. Releases,
+hostnames, replicas, credentials, and rollbacks belong in the configs repository,
+not in this repository's Actions. Updating a versioned image requires changing
+the tag there; re-pushing `latest` requires an explicit deployment restart.
+
+### Template updates
+
+Track the accessible template copy, fetch it, and review changes on a branch:
+
+```sh
+git remote add template https://github.com/fdg10371/pyroscope-template.git
+git fetch template main
+git diff HEAD template/main -- .github/ Dockerfile AGENTS.md
+```
+
+The Harbor build workflow and scientific review issue template are template-owned.
+Review option files and application guidance without overwriting Pyroscope-specific
+settings. Preserve the Pages/container checks and the completed Dockerfile; do not
+reintroduce legacy Helm deployment when refreshing template workflows.
 
 ## Publish on GitHub Pages
 
