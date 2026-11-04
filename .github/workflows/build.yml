@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          IMAGE_PROJECT=c3s-applications
+          IMAGE_PROJECT=nen
           IMAGE_REPOSITORY=${{ github.event.repository.name }}
 
           OPTIONS_FILE_BASE="${{ github.event.inputs.options_directory }}/options.env"
