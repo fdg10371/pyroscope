@@ -232,16 +232,5 @@ geography is public domain, converted from world-atlas 2.0.2.
 
 The original backend and its frontend are retained as a separate local option;
 they are **not deployed to Pages** and are not required by the direct reader.
-
-```sh
-python -m venv .venv
-. .venv/bin/activate
-pip install -e '.[test]'
-export POF_ZARR_URL=https://cemsdata.copernicus-climate.eu/fire_front_radar/pof.zarr
-uvicorn pof_explorer.app:app --host 127.0.0.1 --port 8000
-pytest -q
-```
-
-Open http://127.0.0.1:8000. This variant serves `/api/catalog`, `/api/forecast`,
-`/api/tiles`, and `/api/point` with server-side data reads and a five-minute
-metadata refresh. A local Zarr directory is also supported by that backend.
+The backend has no authentication and should not be exposed publicly without
+appropriate access controls.
