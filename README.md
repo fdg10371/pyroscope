@@ -111,14 +111,14 @@ the chunks needed for the selected forecast. The source must allow public
 cross-origin requests; no token or other credential is included:
 
 ```
-https://cemsdata.copernicus-climate.eu/fire_front_radar/pof.zarr
+https://raw.githubusercontent.com/enyfeo/raw_pof_data/main/pof.zarr
 ```
 
 The browser fetches metadata and only the forecast chunks needed for the
 selected view:
 
 ```sh
-curl -i 'https://cemsdata.copernicus-climate.eu/fire_front_radar/pof.zarr/.zmetadata'
+curl -i 'https://raw.githubusercontent.com/enyfeo/raw_pof_data/main/pof.zarr/.zmetadata'
 ```
 
 To use another public HTTPS source, set the Actions variable `POF_ZARR_URL` or
@@ -245,7 +245,7 @@ The backend is built with open-source Python tools including xarray, Dask, and Z
 python -m venv .venv
 . .venv/bin/activate
 pip install -e '.[test]'
-export POF_ZARR_URL=https://cemsdata.copernicus-climate.eu/fire_front_radar/pof.zarr
+export POF_ZARR_URL=https://raw.githubusercontent.com/enyfeo/raw_pof_data/main/pof.zarr
 uvicorn pof_explorer.app:app --host 127.0.0.1 --port 8000
 pytest -q
 ```

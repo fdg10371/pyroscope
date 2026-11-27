@@ -17,7 +17,7 @@ from PIL import Image
 LOGGER = logging.getLogger(__name__)
 SOURCE = os.environ.get(
     "POF_ZARR_URL",
-    "http://cemsdata.data.compute.cci2.ecmwf.int/fire_front_radar/pof.zarr",
+    "https://raw.githubusercontent.com/enyfeo/raw_pof_data/main/pof.zarr",
 )
 STATIC = Path(__file__).parent / "static"
 STOPS = np.array([0, .001, .005, .01, .02, .05, .1, .2, 1])

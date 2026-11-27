@@ -20,7 +20,7 @@ before(async () => {
 after(() => server.close());
 
 test("HTTPS enforcement and source URL validation", () => {
-  assert.equal(DEFAULT_SOURCE, "https://cemsdata.copernicus-climate.eu/fire_front_radar/pof.zarr");
+  assert.equal(DEFAULT_SOURCE, "https://raw.githubusercontent.com/enyfeo/raw_pof_data/main/pof.zarr");
   assert.throws(() => sourceURL("http://example.org/pof.zarr"), /HTTPS/);
   assert.throws(() => sourceURL("https://user:pass@example.org/pof.zarr"), /credentials/);
   assert.throws(() => sourceURL("file:///pof.zarr"), /HTTP/);

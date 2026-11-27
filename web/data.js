@@ -1,6 +1,6 @@
 import * as zarr from "zarrita";
 
-export const DEFAULT_SOURCE = "https://cemsdata.copernicus-climate.eu/fire_front_radar/pof.zarr";
+export const DEFAULT_SOURCE = "https://raw.githubusercontent.com/enyfeo/raw_pof_data/main/pof.zarr";
 const COLORS = [
   [245, 241, 222], [168, 197, 160], [241, 213, 107], [233, 150, 67], [201, 75, 66], [113, 61, 131],
 ];
